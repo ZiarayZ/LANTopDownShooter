@@ -1,59 +1,38 @@
 import socket
-
-#Create connectable socket
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# get local machine name for clients
 host = socket.gethostname()
 print("Hostname:",host)
-
 port = 8184
 coordinates=[]
 bullets=[]
-# bind to the port for connecting
 serversocket.bind((host, port))
-
-# queue up to as many requests
 No_Clients=int(input("How Many Clients?\n>: "))
 serversocket.listen(No_Clients)
 for turn in range(No_Clients):
     coordinates.append("")
 for turn in range(No_Clients):
     bullets.append("")
-
-
-# establish connections
 if No_Clients>0:
     clientsocket0,addr0 = serversocket.accept()
     print("Got a connection from %s" % str(addr0))
 client0=True
-
 if No_Clients>1:
     clientsocket1,addr1 = serversocket.accept()
     print("Got a connection from %s" % str(addr1))
 client1=True
-
 if No_Clients>2:
     clientsocket2,addr2 = serversocket.accept()
     print("Got a connection from %s" % str(addr2))
 client2=True
-
 if No_Clients>3:
     clientsocket3,addr3 = serversocket.accept()
     print("Got a connection from %s" % str(addr3))
 client3=True
-
 if No_Clients>4:
     clientsocket4,addr4 = serversocket.accept()
     print("Got a connection from %s" % str(addr4))
 client4=True
-
-#If a client disconnects server needs to stop looking for this client
-#client sends "True" when disconnecting so client(number) makes sure to ignore them
-#5 max clients at one time, otherwise game starts to lag
-
 while True:
-    #RECIEVING INFORMATION (Player Location)
     if No_Clients>0 and client0:
         message=clientsocket0.recv(8192).decode()
         if message!="True":
@@ -99,7 +78,6 @@ while True:
     elif not client4:
         coordinates[4]="0,900,"
         clientsocket4.close()
-    #SENDING INFORMATION (Player Location)
     if No_Clients>0 and client0:
         word=""
         for coord in coordinates:
@@ -125,7 +103,6 @@ while True:
         for coord in coordinates:
             word+=coord
         clientsocket4.send(word.encode())
-    #RECIEVING INFORMATION (Projectile Location)
     if No_Clients>0 and client0:
         something=clientsocket0.recv(8192).decode()
         if something=="empty":
@@ -166,7 +143,6 @@ while True:
             bullets[4]=something
     elif No_Clients>4:
         bullets[4]="empty,"
-    #SENDING INFORMATION (Projectile Location)
     if No_Clients>0 and client0:
         word=""
         for coord in bullets:

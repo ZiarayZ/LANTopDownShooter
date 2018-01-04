@@ -19,19 +19,18 @@ class Player(object):
             if self.rect.y>850:
                 self.rect.y=850
     def fire(self,angle):
-        #code to convert angle to vector
         x=2*math.cos(angle)
         y=2*math.sin(angle)
         vector=(x,y)
         if time.time()-self.time>1:
-            self.bullets.append(Bullet(((self.rect.x+25)+(26/math.sqrt(2))*vector[0],(self.rect.y+25)+(26/math.sqrt(2))*vector[1]),vector))
+            self.bullets.append(Bullet((self.rect.x+25+(26*vector[0])/math.sqrt(2),self.rect.y+25+(26*vector[1])/math.sqrt(2)),vector))
             self.time=time.time()
 class Bullet(object):
     def __init__(self,loc,obj):
         self.location=loc
         self.direction=obj
     def move(self):
-        self.location=(self.location[0]+(11*math.sqrt(2)*self.direction[0]),self.location[1]+(11*math.sqrt(2)*self.direction[1]))
+        self.location=(self.location[0]+(5*math.sqrt(2)*self.direction[0]),self.location[1]+(5*math.sqrt(2)*self.direction[1]))
         if self.location[0]<0 or self.location[0]>1600:
             self.direction=(-self.direction[0],self.direction[1])
         if self.location[1]<0 or self.location[1]>900:
@@ -97,7 +96,7 @@ while r:
         somethings=s.recv(8192).decode()
     except:
         r=False
-    coordinates=[[],[],[],[],[]]
+    coordinates=[[]]
     number1=0
     number2=0
     try:
@@ -108,6 +107,7 @@ while r:
                     coordinates[number1].append(int(word))
                     number2+=1
                     if number2==2:
+                        coordinates.append([])
                         number1+=1
                         number2=0
                     word=""
@@ -119,10 +119,16 @@ while r:
                 word+=char
     except:
         pass
+    for coord in coordinates:
+        if coord==[]:
+            coordinates.remove(coord)
     word=""
     for bullet in player.bullets:
         bullet.move()
         word+=str(int(bullet.location[0]))+","+str(int(bullet.location[1]))+","
+        for coord in coordinates:
+            if pygame.Rect(coord[0],coord[1],50,50).collidepoint(bullet.location)and int(player.rect.x)!=coord[0]and int(player.rect.y)!=coord[1]:
+                player.bullets.remove(bullet)
     try:
         if word!="":
             s.send(word.encode())
@@ -152,32 +158,28 @@ while r:
                 word+=char
     except:
         pass
-    if bullets==[[]]:
-        bullets=[]
     for bullet in bullets:
-        try:
+        if bullet==[]:
+            bullets.remove(bullet)
+    for bullet in bullets:
+        pbull=False
+        for pbullet in player.bullets:
+            if int(pbullet.location[0])==bullet[0]and int(pbullet.location[1])==bullet[1]:
+                pbull=True
+        if not pbull:
             if player.rect.collidepoint((bullet[0],bullet[1])):
                 player.health-=1
-                bullets.remove(bullet)
-            for coord in coordinates:
-                if coord!=[]:
-                    if pygame.Rect(coord[0],coord[1],50,50).collidepoint((bullet[0],bullet[1])):
-                        try:
-                            bullets.remove(bullet)
-                        except:
-                            pass
-            pygame.draw.rect(screen,(255,255,255),pygame.Rect(bullet[0]-5,bullet[1]-5,10,10))
-        except:
-            pass
+            else:
+                pygame.draw.rect(screen,(50,50,255),pygame.Rect(bullet[0]-5,bullet[1]-5,10,10))
+        else:
+            pygame.draw.rect(screen,(255,50,50),pygame.Rect(bullet[0]-5,bullet[1]-5,10,10))
     for coord in coordinates:
-        try:
-            pygame.draw.rect(screen,(50,50,255),pygame.Rect(coord[0],coord[1],50,50))
-        except:
-            pass
+        pygame.draw.rect(screen,(50,50,255),pygame.Rect(coord[0],coord[1],50,50))
     if player.health<0:
         r=False
     pygame.draw.rect(screen,(255,50,50),player.rect)
-    screen.blit(myfont.render(str(player.health),False),(player.rect.x,player.rect.y))
+    textimg=myfont.render(str(player.health),False,(0,0,0))
+    screen.blit(textimg,(player.rect.x+25-(textimg.get_width()/2),player.rect.y+25-(textimg.get_height()/2)))
     mouse_x,mouse_y=pygame.mouse.get_pos()
     screen.blit(cursorimg,(mouse_x-10,mouse_y-10))
     pygame.display.update()
