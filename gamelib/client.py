@@ -51,6 +51,7 @@ clock=pygame.time.Clock()
 pygame.mouse.set_visible(False)
 player=Player()
 cursorimg=pygame.image.load("crosshair.png")
+myfont=pygame.font.SysFont('Arial',50)
 while r:
     clock.tick(60)
     screen.fill((0,0,0))
@@ -176,6 +177,7 @@ while r:
     if player.health<0:
         r=False
     pygame.draw.rect(screen,(255,50,50),player.rect)
+    screen.blit(myfont.render(str(player.health),False),(player.rect.x,player.rect.y))
     mouse_x,mouse_y=pygame.mouse.get_pos()
     screen.blit(cursorimg,(mouse_x-10,mouse_y-10))
     pygame.display.update()
