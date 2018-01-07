@@ -36,7 +36,7 @@ class Bullet(object):
         if self.location[1]<0 or self.location[1]>900:
             self.direction=(self.direction[0],-self.direction[1])
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host="Jake-GamingPC"#str(input("Server Host Name.\n>: "))
+host=str(input("Server Host Name.\n>: "))
 port=8184
 s.connect((host,port))
 width=1600
