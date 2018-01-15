@@ -2,7 +2,6 @@
 Very Simple Inefficient Top Down Shooter
 #### How To Use
 1. Run the server.py
-(Answer the question)
 2. All players must launch client.py and enter the server Host Name
 (Host Name displayed when launching server.py)
 3. Once Everyone has connected the game begins
