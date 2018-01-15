@@ -81,13 +81,13 @@ while r:
         if theta!="nothing":
             player.fire(theta)
     user_input=pygame.key.get_pressed()
-    if user_input[pygame.K_w] and player.health>=0:
+    if(user_input[pygame.K_w]or user_input[pygame.K_UP])and player.health>=0:
         player.move(dy=-10)
-    if user_input[pygame.K_s] and player.health>=0:
+    if(user_input[pygame.K_s]or user_input[pygame.K_DOWN])and player.health>=0:
         player.move(dy=10)
-    if user_input[pygame.K_a] and player.health>=0:
+    if(user_input[pygame.K_a]or user_input[pygame.K_LEFT])and player.health>=0:
         player.move(-10)
-    if user_input[pygame.K_d] and player.health>=0:
+    if(user_input[pygame.K_d]or user_input[pygame.K_RIGHT])and player.health>=0:
         player.move(10)
     if user_input[pygame.K_ESCAPE]:
         r=False
