@@ -1,5 +1,5 @@
 # LANTopDownShooter
-Very Simple Inefficient Top Down Shooter
+Very Simple Inefficient Top Down Shooter, Max player limit is 5 currently.
 #### How To Use
 1. Run the server.py
 2. All players must launch client.py and enter the server Host Name
