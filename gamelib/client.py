@@ -1,4 +1,5 @@
 import pygame,socket,random,math,time,os
+#create player object, movement and shooting defined inside
 class Player(object):
     def __init__(self):
         self.rect=pygame.Rect(random.randint(0,1550),random.randint(0,850),50,50)
@@ -25,6 +26,7 @@ class Player(object):
         if time.time()-self.time>1:
             self.bullets.append(Bullet((self.rect.x+25+(26*vector[0])/math.sqrt(2),self.rect.y+25+(26*vector[1])/math.sqrt(2)),vector))
             self.time=time.time()
+#create bullet object, movement defined inside
 class Bullet(object):
     def __init__(self,loc,obj):
         self.location=loc
@@ -35,10 +37,12 @@ class Bullet(object):
             self.direction=(-self.direction[0],self.direction[1])
         if self.location[1]<0 or self.location[1]>900:
             self.direction=(self.direction[0],-self.direction[1])
+#create socket and connect to server socket
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 host=str(input("Server Host Name.\n>: "))
 port=8184
 s.connect((host,port))
+#create game window
 width=1600
 height=900
 r=True
@@ -51,12 +55,14 @@ pygame.mouse.set_visible(False)
 player=Player()
 cursorimg=pygame.image.load("crosshair.png")
 myfont=pygame.font.SysFont('Arial',50)
+#game loop
 while r:
     clock.tick(60)
     screen.fill((0,0,0))
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             r=False
+    #shooting and calculating angles
     if pygame.mouse.get_pressed()[0] and player.health>=0:
         mouse_pos=pygame.mouse.get_pos()
         x=int(mouse_pos[0]-player.rect.x-25)
@@ -80,6 +86,7 @@ while r:
                 theta="nothing"
         if theta!="nothing":
             player.fire(theta)
+    #player movement
     user_input=pygame.key.get_pressed()
     if(user_input[pygame.K_w]or user_input[pygame.K_UP])and player.health>=0:
         player.move(dy=-10)
@@ -89,13 +96,16 @@ while r:
         player.move(-10)
     if(user_input[pygame.K_d]or user_input[pygame.K_RIGHT])and player.health>=0:
         player.move(10)
+    #player quits
     if user_input[pygame.K_ESCAPE]:
         r=False
+    #attempt to send player location to server
     try:
         s.send((str(int(player.rect.x))+","+str(int(player.rect.y))+",").encode())
         somethings=s.recv(8192).decode()
     except:
         r=False
+    #attempt to receive player locations from server
     coordinates=[[]]
     number1=0
     number2=0
@@ -119,9 +129,11 @@ while r:
                 word+=char
     except:
         pass
+    #remove empty lists
     for coord in coordinates:
         if coord==[]:
             coordinates.remove(coord)
+    #translate player bullet's locations into a long string
     word=""
     for bullet in player.bullets:
         bullet.move()
@@ -129,6 +141,7 @@ while r:
         for coord in coordinates:
             if pygame.Rect(coord[0],coord[1],50,50).collidepoint(bullet.location)and int(player.rect.x)!=coord[0]and int(player.rect.y)!=coord[1]:
                 player.bullets.remove(bullet)
+    #attempt to send player bullet's locations to server
     try:
         if word!="":
             s.send(word.encode())
@@ -137,6 +150,7 @@ while r:
         somethings=s.recv(8192).decode()
     except:
         r=False
+    #attempt to reveive bullet locations from server
     try:
         bullets=[[]]
         word=""
@@ -158,14 +172,18 @@ while r:
                 word+=char
     except:
         pass
+    #remove empty lists
     for bullet in bullets:
         if bullet==[]:
             bullets.remove(bullet)
+    #calculate bullet collisions with player, ignore player bullets
     for bullet in bullets:
         pbull=False
         for pbullet in player.bullets:
+            #badly implemented, player's own bullets are sent back and ignored through checking identical locations
             if int(pbullet.location[0])==bullet[0]and int(pbullet.location[1])==bullet[1]:
                 pbull=True
+    #draw objects onto game window
         if not pbull:
             if player.rect.collidepoint((bullet[0],bullet[1])):
                 player.health-=1
@@ -175,6 +193,7 @@ while r:
             pygame.draw.rect(screen,(255,50,50),pygame.Rect(bullet[0]-5,bullet[1]-5,10,10))
     for coord in coordinates:
         pygame.draw.rect(screen,(50,50,255),pygame.Rect(coord[0],coord[1],50,50))
+    #if player dies kick them out
     if player.health<0:
         r=False
     pygame.draw.rect(screen,(255,50,50),player.rect)
@@ -185,5 +204,7 @@ while r:
     pygame.display.update()
     pygame.display.flip()
 pygame.quit()
+#send death message to server, may cause issues
 s.send("True".encode())
+#close connection to server
 s.close()

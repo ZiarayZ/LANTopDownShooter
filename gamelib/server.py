@@ -3,10 +3,10 @@ serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
 print("Hostname:",host)
 port = 8184
-coordinates=[]
-bullets=[]
+coordinates=[]#player locations
+bullets=[]#bullet locations
 serversocket.bind((host, port))
-No_Clients=int(input("How Many Clients?\n>: "))
+No_Clients=int(input("How Many Clients?\n>: "))#waits for that number of clients, no contingency for extra clients
 serversocket.listen(No_Clients)
 for turn in range(No_Clients):
     coordinates.append("")
@@ -15,24 +15,26 @@ for turn in range(No_Clients):
 if No_Clients>0:
     clientsocket0,addr0 = serversocket.accept()
     print("Got a connection from %s" % str(addr0))
-client0=True
+client0=True#upon death sets to false
 if No_Clients>1:
     clientsocket1,addr1 = serversocket.accept()
     print("Got a connection from %s" % str(addr1))
-client1=True
+client1=True#upon death sets to false
 if No_Clients>2:
     clientsocket2,addr2 = serversocket.accept()
     print("Got a connection from %s" % str(addr2))
-client2=True
+client2=True#upon death sets to false
 if No_Clients>3:
     clientsocket3,addr3 = serversocket.accept()
     print("Got a connection from %s" % str(addr3))
-client3=True
+client3=True#upon death sets to false
 if No_Clients>4:
     clientsocket4,addr4 = serversocket.accept()
     print("Got a connection from %s" % str(addr4))
-client4=True
+client4=True#upon death sets to false
 while True:
+    #checking players are alive and cutting connections
+    #receiving locations from players
     if No_Clients>0 and client0:
         message=clientsocket0.recv(8192).decode()
         if message!="True":
@@ -78,6 +80,7 @@ while True:
     elif not client4:
         coordinates[4]="0,900,"
         clientsocket4.close()
+    #sending player the locations of others
     if No_Clients>0 and client0:
         word=""
         for coord in coordinates:
@@ -103,6 +106,7 @@ while True:
         for coord in coordinates:
             word+=coord
         clientsocket4.send(word.encode())
+    #receiving bullet locations from players
     if No_Clients>0 and client0:
         something=clientsocket0.recv(8192).decode()
         if something=="empty":
@@ -143,6 +147,7 @@ while True:
             bullets[4]=something
     elif No_Clients>4:
         bullets[4]="empty,"
+    #sending player the locations of others' bullets
     if No_Clients>0 and client0:
         word=""
         for coord in bullets:
