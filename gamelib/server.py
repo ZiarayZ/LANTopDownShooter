@@ -1,4 +1,6 @@
 import socket
+from pynput import keyboard
+from threading import Thread
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
 print("Hostname:",host)
@@ -8,16 +10,26 @@ bullets = []#bullet locations
 serversocket.bind((host, port))
 No_Clients = 0
 clientsockets = {}
-print("Once all users have connected, press CTRL + C to continue/play.")
-try:
+print("Once all users have connected, press SPACE to continue/play.")
+def break_loop(key, abortKey='space'):
+    try:
+        k = key.char
+    except:
+        k = key.name
+    if k == abortKey:
+        return False
+def infiniloop():
     while True:
         clientsocket, addr = serversocket.accept()
         clientsockets[No_Clients] = clientsocket
         print("Got a connection from %s" % str(addr))
         No_Clients += 1
-except KeyboardInterrupt:
-    pass
-serversocket.listen(No_Clients)
+serversocket.listen()
+listener = keyboard.Listener(on_press=break_loop, abortKey='space')
+listener.start()
+Thread(target=infiniloop, args=(), name='infiniloop', daemon=True).start()
+listener.join()
+print("Starting session...")
 for turn in range(No_Clients):
     coordinates.append("")
 for turn in range(No_Clients):
