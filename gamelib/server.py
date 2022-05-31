@@ -19,6 +19,7 @@ def break_loop(key, abortKey='space'):
     if k == abortKey:
         return False
 def infiniloop():
+    global No_Clients,clientsockets,serversocket
     while True:
         clientsocket, addr = serversocket.accept()
         clientsockets[No_Clients] = clientsocket
@@ -34,6 +35,7 @@ for turn in range(No_Clients):
     coordinates.append("")
 for turn in range(No_Clients):
     bullets.append("")
+clientSkip = []
 while True:
     #checking players are alive and cutting connections
     #receiving locations from players
@@ -45,7 +47,10 @@ while True:
             coordinates[clientKey] = "empty,"
             bullets[clientKey] = "empty,"
             clientsockets[clientKey].close()
-            clientsockets.pop(clientKey, None)
+            clientSkip.append(clientKey)
+    for clientSkipped in clientSkip:
+        clientsockets.pop(clientSkipped, None)
+    clientSkip = []
 
     #sending player the locations of others
     for clientKey in clientsockets.keys():
