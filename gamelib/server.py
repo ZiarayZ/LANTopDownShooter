@@ -36,7 +36,8 @@ for turn in range(No_Clients):
 for turn in range(No_Clients):
     bullets.append("")
 clientSkip = []
-while True:
+running = True
+while running:
     #checking players are alive and cutting connections
     #receiving locations from players
     for clientKey in clientsockets.keys():
@@ -73,3 +74,8 @@ while True:
         for coord in bullets:
             word += coord
         clientsockets[clientKey].send(word.encode())
+
+    if len(clientsockets) == 0:
+        running = False
+print("Server shutting down...")
+serversocket.close()
