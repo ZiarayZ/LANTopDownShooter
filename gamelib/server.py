@@ -30,7 +30,7 @@ while True:
         if message != "True":
             coordinates[clientKey] = message
         else:
-            coordinates[clientKey] = "0,900,"
+            coordinates[clientKey] = "empty,"
             bullets[clientKey] = "empty,"
             clientsockets[clientKey].close()
             clientsockets.pop(clientKey, None)
